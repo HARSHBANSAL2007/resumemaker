@@ -78,5 +78,5 @@ if st.button('generate resume'):
     print(response['messages'][-1].content)
     code=response['messages'][-1].content[-1]['text']
     #st.markdown(code)
-    st.html(code , width="streach" , unsafe_allow_javascript=True)
+    st.html(code , width="streTch" , unsafe_allow_javascript=True)
     
