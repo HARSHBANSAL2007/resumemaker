@@ -63,7 +63,7 @@ def resume():
   with open('prompt.py','r') as f:
     prompt=f.read()
   return prompt
-resume(model)
+resume()
 #===============RESUME GENERATOR =============
 prompt="""you are a helpful ai assistant  with a job resume maker , your task is to give html gormat resume ,with a proper designing using recent html js css code , with professional degsine format , user will upload data and return html format resume make it diffrent colour scheme andthe resume should project m skill set  also make it look like professional , create side margins table also make the text gradient for heddings like professional summary   """
 final_prompt=prompt+resume()
