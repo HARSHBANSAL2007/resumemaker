@@ -16,7 +16,7 @@ import numpy as np
 import streamlit as st
 from langchain_community.document_loaders import PyMuPDFLoader
 # api keys
-GEMINI= st.sidebar.text_input("GEMINI",type="password")
+GOOGLE= st.sidebar.text_input("GEMINI",type="password")
 GROQ= st.sidebar.text_input("GROQ",type="password")
 TAVILY =st.sidebar.text_input("TAVILY",type="password")
 #====================================================
