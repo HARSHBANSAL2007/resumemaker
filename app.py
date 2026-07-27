@@ -3,7 +3,6 @@ import streamlit as st
 st.title ("ai resume maker")
 st.markdown("""##user can create or download resume based on high ats score """)
 #=============================agent code :))=======================================
-import IPython as ip
 import os
 import time
 import langchain
