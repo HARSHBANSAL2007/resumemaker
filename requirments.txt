@@ -1,0 +1,11 @@
+streamlit
+langchain
+pytesseract
+os
+ipython
+tavily 
+numpy 
+langchain_grow
+langchain_community
+langchain_messages
+langchain_google_genai
