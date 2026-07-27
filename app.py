@@ -58,12 +58,13 @@ def prompt_generator(agent):
     f.write(response.content [-1] ['text'])
   return "Prompt file generated Successfult, agent can read it"
 #resume maker prompt
+prompt_generator(model)
 def resume():
   """this function gives updated prompt for model """
   with open('prompt.py','r') as f:
     prompt=f.read()
   return prompt
-
+resume(model)
 #===============RESUME GENERATOR =============
 prompt="""you are a helpful ai assistant  with a job resume maker , your task is to give html gormat resume ,with a proper designing using recent html js css code , with professional degsine format , user will upload data and return html format resume make it diffrent colour scheme andthe resume should project m skill set  also make it look like professional , create side margins table also make the text gradient for heddings like professional summary   """
 final_prompt=prompt+resume()
@@ -77,5 +78,6 @@ if st.button('generate resume'):
     response = agent.invoke({'messages': [{'role':'user','content':query}]})
     print(response['messages'][-1].content)
     code=response['messages'][-1].content[-1]['text']
-    st.markdown(code)
+    #st.markdown(code)
+    st.html(code , width="streach" , unsafe_allow_javascript=True)
     
