@@ -67,7 +67,9 @@ def resume():
 #===============RESUME GENERATOR =============
 prompt="""you are a helpful ai assistant  with a job resume maker , your task is to give html gormat resume ,with a proper designing using recent html js css code , with professional degsine format , user will upload data and return html format resume make it diffrent colour scheme andthe resume should project m skill set  also make it look like professional , create side margins table also make the text gradient for heddings like professional summary   """
 final_prompt=prompt+resume()
-user_details=
+user_details="""user details:given beow :give
+ python developer resume im harsh bansal , studing bca in ipu delhi , contact no 8595783978 and did 4 project , one portfolio , one bwm showrroom using pthoyn , f1 logistics and sql and agentic ai , have 3 certificates , one ministry of hrm one narcotisc control beauro and one be10x ai
+   the skills i currently have is python sql c c++ javascript html js n8n  """
 query = final_prompt+user_details
 if st.button('generate resume'):
   with st.spinner("runnign agent"):
