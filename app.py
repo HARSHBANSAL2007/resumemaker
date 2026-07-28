@@ -108,11 +108,18 @@ IMPORTANT: wherever the profile photo goes in the resume, output exactly this ta
 do not draw or generate any other image tag or placeholder circle yourself
 
 IMPORTANT PDF DOWNLOAD FEATURE: wrap the entire resume content in a single div with id="resume-content".
-At the very end of the HTML, include this exact script tag to load html2pdf.js from CDN:
+Add a button with EXACTLY this markup, do not modify or omit any attribute:
+<button id="download-pdf-btn" style="[keep your own matching styles here]">Download PDF</button>
+
+At the very end of the HTML body, include these two script tags EXACTLY as written, do not paraphrase or omit them:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-Then add a button labeled "Download PDF" styled to match the resume's color scheme, with this exact onclick behavior:
-onclick="html2pdf().from(document.getElementById('resume-content')).save('resume.pdf')"
-Make sure the button is visually separate from the resume content itself (e.g. placed above or below the resume-content div, not inside it) so it doesn't appear in the downloaded PDF."""
+<script>
+document.getElementById('download-pdf-btn').addEventListener('click', function() {
+  html2pdf().from(document.getElementById('resume-content')).save('resume.pdf');
+});
+</script>
+
+Make sure the button sits outside the resume-content div, not inside it."""
 final_prompt=prompt+resume()
 USER_INFO=st.text_input("ENTER YOUR INFORMATION")
 user_details=f"""user details:given beow :resume info {USER_INFO} DEFAULT IF NOT GIVEN : PYTHON DEVELOPER RESUME """
