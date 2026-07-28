@@ -104,7 +104,7 @@ if FILE is not None:
 prompt="""you are a helpful ai assistant  with a job resume maker , your task is to give html gormat resume ,with a proper designing using recent html js css code , with professional degsine format , user will upload data and return html format resume make it diffrent colour scheme andthe resume should project m skill set  also make it look like professional , create side margins table also make the text gradient for heddings like professional summary   """
 final_prompt=prompt+resume()
 USER_INFO=st.text_input("ENTER YOUR INFORMATION")
-user_details=f"""user details:given beow :resume info {user_info} photo :{FILE} DEFAULT IF NOT GIVEN : PYTHON DEVELOPER RESUME """  
+user_details=f"""user details:given beow :resume info {USER_INFO} photo :{FILE} DEFAULT IF NOT GIVEN : PYTHON DEVELOPER RESUME """  
 query = final_prompt+user_details
 if st.button('generate resume'):
   with st.spinner("runnign agent"):
