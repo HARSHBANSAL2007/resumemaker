@@ -1,4 +1,6 @@
 import streamlit as st
+from weasyprint import HTML
+import io
 from PIL import Image
 # steream lit is web based pyhton frame work 
 st.title ("ai resume maker")
@@ -127,6 +129,7 @@ if st.button('generate resume'):
         data_uri = f"data:image/jpeg;base64,{b64_image}"
         code = code.replace("PROFILE_IMAGE_PLACEHOLDER", data_uri)
 
+
    #st.html(code , width="stretch" , unsafe_allow_javascript=True)
       
   #  response = agent.invoke({'messages': [{'role':'user','content':query}]})
@@ -134,4 +137,19 @@ if st.button('generate resume'):
     #code=response['messages'][-1].content[-1]['text']
     #st.markdown(code)
     st.html(code , width="stretch" , unsafe_allow_javascript=True)
+     pdf_bytes = HTML(string=code).write_pdf()
+
+    st.download_button(
+        label="📄 Download Resume (PDF)",
+        data=pdf_bytes,
+        file_name="resume.pdf",
+        mime="application/pdf"
+    )
+
+    st.download_button(
+        label="📥 Download Resume (HTML)",
+        data=code,
+        file_name="resume.html",
+        mime="text/html"
+    )
     
