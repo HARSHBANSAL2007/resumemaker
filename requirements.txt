@@ -6,4 +6,3 @@ langchain-groq
 tavily-python
 pytesseract
 numpy
-weasyprint 
