@@ -1,6 +1,4 @@
 import streamlit as st
-from weasyprint import HTML
-import io
 from PIL import Image
 # steream lit is web based pyhton frame work 
 st.title ("ai resume maker")
@@ -107,7 +105,14 @@ if FILE is not None:
 prompt="""you are a helpful ai assistant  with a job resume maker , your task is to give html gormat resume ,with a proper designing using recent html js css code , with professional degsine format , user will upload data and return html format resume make it diffrent colour scheme andthe resume should project m skill set  also make it look like professional , create side margins table also make the text gradient for heddings like professional summary
 IMPORTANT: wherever the profile photo goes in the resume, output exactly this tag and nothing else:
 <img src="PROFILE_IMAGE_PLACEHOLDER" style="width:100px;height:100px;border-radius:50%;">
-do not draw or generate any other image tag or placeholder circle yourself """
+do not draw or generate any other image tag or placeholder circle yourself
+
+IMPORTANT PDF DOWNLOAD FEATURE: wrap the entire resume content in a single div with id="resume-content".
+At the very end of the HTML, include this exact script tag to load html2pdf.js from CDN:
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+Then add a button labeled "Download PDF" styled to match the resume's color scheme, with this exact onclick behavior:
+onclick="html2pdf().from(document.getElementById('resume-content')).save('resume.pdf')"
+Make sure the button is visually separate from the resume content itself (e.g. placed above or below the resume-content div, not inside it) so it doesn't appear in the downloaded PDF."""
 final_prompt=prompt+resume()
 USER_INFO=st.text_input("ENTER YOUR INFORMATION")
 user_details=f"""user details:given beow :resume info {USER_INFO} DEFAULT IF NOT GIVEN : PYTHON DEVELOPER RESUME """
