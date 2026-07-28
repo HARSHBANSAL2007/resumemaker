@@ -142,19 +142,5 @@ if st.button('generate resume'):
     #code=response['messages'][-1].content[-1]['text']
     #st.markdown(code)
     st.html(code , width="stretch" , unsafe_allow_javascript=True)
-    pdf_bytes = HTML(string=code).write_pdf()
 
-    st.download_button(
-        label="📄 Download Resume (PDF)",
-        data=pdf_bytes,
-        file_name="resume.pdf",
-        mime="application/pdf"
-    )
-
-    st.download_button(
-        label="📥 Download Resume (HTML)",
-        data=code,
-        file_name="resume.html",
-        mime="text/html"
-    )
     
