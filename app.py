@@ -24,7 +24,7 @@ if not (GOOGLE) and not (GROQ) and not (TAVILY):
     st.sidebar.warning("pass api keys")
     st.stop()
 else:
-    st.sucess("API KEYS LOADED")
+    st.success("API KEYS LOADED")
     
 #====================================================
 model=ChatGoogleGenerativeAI(
