@@ -1,4 +1,5 @@
 import streamlit as st
+from PIL import Image
 # steream lit is web based pyhton frame work 
 st.title ("ai resume maker")
 st.markdown("""##user can create or download resume based on high ats score """)
@@ -19,6 +20,12 @@ from langchain_community.document_loaders import PyMuPDFLoader
 GOOGLE= st.sidebar.text_input("GEMINI",type="password")
 GROQ= st.sidebar.text_input("GROQ",type="password")
 TAVILY =st.sidebar.text_input("TAVILY",type="password")
+if not (GOOGLE) and not (GROQ) and not (TAVILY):
+    st.sidebar.warning("pass api keys")
+    st.stop()
+else:
+    st.sucess("API KEYS LOADED")
+    
 #====================================================
 model=ChatGoogleGenerativeAI(
     google_api_key=GOOGLE,
@@ -64,12 +71,40 @@ def resume():
     prompt=f.read()
   return prompt
 resume()
+
+#=======================IMAGE UPLOADER==============================
+# ==================== UPLOAD IMAGE ====================
+
+FILE = st.sidebar.file_uploader(
+    "Choose an image file",
+    type=["jpg", "jpeg", "png", "webp"]
+)
+
+if FILE is not None:
+    try:
+        image = Image.open(FILE)
+
+        st.sidebar.image(image, caption="Uploaded Image", use_container_width=True)
+
+        if image.mode in ("RGBA", "P"):
+            image = image.convert("RGB")
+
+        base_name = os.path.splitext(FILE.name)[0]
+        save_path = f"{base_name}.jpg"
+
+        # 3. Save the image to the current working directory
+        image.save(save_path, "JPEG")
+
+        st.sidebar.success(f"🎉 Image successfully saved as `{save_path}`!")
+
+    except Exception as e:
+        st.error(f"Error processing image: {e}")
+
 #===============RESUME GENERATOR =============
 prompt="""you are a helpful ai assistant  with a job resume maker , your task is to give html gormat resume ,with a proper designing using recent html js css code , with professional degsine format , user will upload data and return html format resume make it diffrent colour scheme andthe resume should project m skill set  also make it look like professional , create side margins table also make the text gradient for heddings like professional summary   """
 final_prompt=prompt+resume()
-user_details="""user details:given beow :give
- python developer resume im harsh bansal , studing bca in ipu delhi , contact no 8595783978 and did 4 project , one portfolio , one bwm showrroom using pthoyn , f1 logistics and sql and agentic ai , have 3 certificates , one ministry of hrm one narcotisc control beauro and one be10x ai
-   the skills i currently have is python sql c c++ javascript html js n8n  """
+USER_INFO=st.text_input("ENTER YOUR INFORMATION")
+user_details=f"""user details:given beow :resume info {user_info} photo :{FILE} DEFAULT IF NOT GIVEN : PYTHON DEVELOPER RESUME """  
 query = final_prompt+user_details
 if st.button('generate resume'):
   with st.spinner("runnign agent"):
