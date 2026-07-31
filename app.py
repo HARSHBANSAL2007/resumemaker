@@ -1,9 +1,5 @@
+from langchain_core.runnables.config import set_config_context
 import streamlit as st
-from PIL import Image
-# steream lit is web based pyhton frame work 
-st.title ("ai resume maker")
-st.markdown("""##user can create or download resume based on high ats score """)
-#=============================agent code :))=======================================
 import os
 import time
 import langchain
@@ -12,164 +8,203 @@ from langchain_groq import ChatGroq
 from langchain_google_genai import ChatGoogleGenerativeAI
 import pytesseract as pyt
 from tavily import TavilyClient
-from langchain.messages import SystemMessage , HumanMessage
+from langchain.messages import SystemMessage, HumanMessage
 import numpy as np
-import streamlit as st
 from langchain_community.document_loaders import PyMuPDFLoader
-# api keys
-GOOGLE= st.sidebar.text_input("GEMINI",type="password")
-GROQ= st.sidebar.text_input("GROQ",type="password")
-TAVILY =st.sidebar.text_input("TAVILY",type="password")
-if not (GOOGLE) and not (GROQ) and not (TAVILY):
-    st.sidebar.warning("pass api keys")
-    st.stop()
-else:
-    st.success("API KEYS LOADED")
-    
-#====================================================
-model=ChatGoogleGenerativeAI(
-    google_api_key=GOOGLE,
-    model='gemini-3.5-flash-lite',
-    temperature=1
-)
-def search_jobs(query):
-  """this function helps to find recent news or recent jobs related to given search query suppose user to write a python develpoer or should return trending news and job links """
-  tavily_client = TavilyClient(api_key=TAVILY)
-  return tavily_client.search(query)
-agent = create_agent(
-        model = model,
-  tools = [search_jobs]
-)
-
-#================PROMPT GEN=================
-def prompt_generator(agent):
-  """This function help yo give detailed prompt
-  followed by chain thoughts and
-  persona based prompting, main task is to give
-  detailed prompt to uild resume for
-  students or experienced person
-  Based on their given personal information."""
-
-  prompt = """ You are a senior HR resume analyzer,
- main task is to give
-  detailed prompt to uild resume for
-  students or experienced person
-  Based on their given personal information.
-  System Instructions I want model to genrate resume
-  in HTML format, include that in prompt"""
-
-  response = agent.invoke(prompt)
-  file_name = 'prompt.py'
-  with open(file_name,'w') as f:
-    f.write(response.content [-1] ['text'])
-  return "Prompt file generated Successfult, agent can read it"
-#resume maker prompt
-prompt_generator(model)
-def resume():
-  """this function gives updated prompt for model """
-  with open('prompt.py','r') as f:
-    prompt=f.read()
-  return prompt
-resume()
-
-#=======================IMAGE UPLOADER==============================
-# ==================== UPLOAD IMAGE ====================
-
-FILE = st.sidebar.file_uploader(
-    "Choose an image file",
-    type=["jpg", "jpeg", "png", "webp"]
-)
-
-if FILE is not None:
-    try:
-        image = Image.open(FILE)
-
-        st.sidebar.image(image, caption="Uploaded Image", use_container_width=True)
-
-        if image.mode in ("RGBA", "P"):
-            image = image.convert("RGB")
-
-        base_name = os.path.splitext(FILE.name)[0]
-        save_path = f"{base_name}.jpg"
-
-        # 3. Save the image to the current working directory
-        image.save(save_path, "JPEG")
-
-        st.sidebar.success(f"🎉 Image successfully saved as `{save_path}`!")
-
-    except Exception as e:
-        st.error(f"Error processing image: {e}")
-
-#===============RESUME GENERATOR =============
-#===============RESUME GENERATOR =============
-prompt="""you are a helpful ai assistant  with a job resume maker , your task is to give html gormat resume ,with a proper designing using recent html js css code , with professional degsine format , user will upload data and return html format resume make it diffrent colour scheme andthe resume should project m skill set  also make it look like professional , create side margins table also make the text gradient for heddings like professional summary
-IMPORTANT: wherever the profile photo goes in the resume, output exactly this tag and nothing else:
-<img src="PROFILE_IMAGE_PLACEHOLDER" style="width:100px;height:100px;border-radius:50%;">
-do not draw or generate any other image tag or placeholder circle yourself
-
-IMPORTANT PDF DOWNLOAD FEATURE: wrap the entire resume content in a single div with id="resume-content".
-Add a button with EXACTLY this markup, do not modify or omit any attribute:
-<button id="download-pdf-btn" style="[keep your own matching styles here]">Download PDF</button>
-
-At the very end of the HTML body, include these two script tags EXACTLY as written, do not paraphrase or omit them:
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
-document.getElementById('download-pdf-btn').addEventListener('click', function() {
-  html2pdf().from(document.getElementById('resume-content')).save('resume.pdf');
-});
-</script>
-
-Make sure the button sits outside the resume-content div, not inside it."""
-final_prompt=prompt+resume()
-USER_INFO=st.text_input("ENTER YOUR INFORMATION")
-user_details=f"""user details:given beow :resume info {USER_INFO} DEFAULT IF NOT GIVEN : PYTHON DEVELOPER RESUME """
-query = final_prompt+user_details
-
+import requests as r
+from urllib.parse import quote
+from PIL import Image
 import base64
-OPTIONS = ["DELHI","NOIDA","GURGAON/GURUGRAM",
-           'KANPUR','LUCKNOW','BANGLORE','PUNE']
 
-LOCATION = st.sidebar.multiselect('SELECT LOCATION: ',
-                options = OPTIONS )
-JOB_PROFILE = ["PYTHON DEVELOPER",'GEN AI',
-               'FULL-STACK DEVELOPER','DATA ANALYST']
+# PROJECT FLOW
+# OBJECTIVE : PPT GENERATOR
+# MODEL ==> LLM CALL : TOOL ==> SEARCH API'S , IMAGE API
+# SUB-AGENT ==> TO WORK ON SPECIFIC TASK
+# MAIN AGENT ==> ORCHESTRATE ALL AGENTS
+# CODE TEST ==> CHECK OUTPUT
+# FRONT END ==> STREAMLIT
+# LIVE DEPLOY ==> STREAMLIT FRONT END DESIGN
 
-PROFILE = st.sidebar.multiselect("SELECT JOB ROLE",
-                options = JOB_PROFILE)
+st.set_page_config(layout="wide")
+
+st.title("AI PPT GENERATOR")
+st.divider()
+st.sidebar.title("Enter API-KEYS")
+
+# API key loader
+google = st.sidebar.text_input("GEMINI", type="password")
+GROQ = st.sidebar.text_input("GROQ", type="password")
+TAVILY = st.sidebar.text_input("TAVILY", type="password")
+
+# API VALIDATIONS
+ALL_API = [google, TAVILY]
+
+if not all(ALL_API):
+    st.sidebar.error("MUST PASS ALL API-KEYS")
+
+elif all(ALL_API):
+    st.sidebar.success("API-KEYS LOADED SUCCESSFULLY")
+    # MODEL LOAD
+    model = ChatGoogleGenerativeAI(
+        google_api_key=google,
+        model=st.sidebar.selectbox(
+            "Gemini-Model-Name",
+            options=[
+                "gemini-2.5-flash",
+                "gemini-2.5-flash-lite",
+                "gemini-3.5-flash",
+                "gemini-3.5-flash-lite"
+            ]
+        )
+    )
+else:
+    st.sidebar.info("CHECK-API-KEYS")
 
 
-job_prompt = f"""Based on {PROFILE} jobs in {LOCATION}, I 
-want latest job news in using tavily, 
-try top 10 search or whatever available 
-and give result like naukri theme design with 
-job name, job desc, salary, 
-apply link IN A HTML OUTOPUT NO MARKDOWNS"""
-if st.button('generate resume'):
-  with st.spinner("runnign agent"):
-
-    response = agent.invoke({'messages': [{'role':'user','content':query}]})
-    print(response['messages'][-1].content)
-    code=response['messages'][-1].content[-1]['text']
-
-    # swap in the actual uploaded photo instead of the placeholder tag
-    if FILE is not None:
-        with open(save_path, "rb") as img_file:
-            b64_image = base64.b64encode(img_file.read()).decode()
-        data_uri = f"data:image/jpeg;base64,{b64_image}"
-        code = code.replace("PROFILE_IMAGE_PLACEHOLDER", data_uri)
+# TOOL1 : NEWS SEARCHER / INFO GATHERER
+def search(query):
+    """This function helps to give latest search query based on user given research related or content"""
+    tavily_client = TavilyClient(api_key="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")
+    return tavily_client.search(query)
 
 
-   #st.html(code , width="stretch" , unsafe_allow_javascript=True)
-      
-  #  response = agent.invoke({'messages': [{'role':'user','content':query}]})
-   # print(response['messages'][-1].content)
-    #code=response['messages'][-1].content[-1]['text']
-    #st.markdown(code)
-    st.html(code , width="stretch" , unsafe_allow_javascript=True)
-    st.divider()
-    response = agent.invoke({'messages':[{'role':'user','content':job_prompt}]})
+# USER INPUT
+st.header("Write prompt to generate ppt or image or fetch latest news")
+user = st.text_area("Write HERE: ")
 
-    job_code = response['messages'][-1].content[-1]['text']
-    st.html(job_code , width="stretch" , unsafe_allow_javascript=True)
 
-    
+# TOOL2 : IMAGE GENERATION
+def generate_image(img_prompt, slide_no=1):
+    """This function helps user to generate image using free API, with given img_prompt"""
+    encoded_prompt = quote(img_prompt)
+    url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
+
+    for attempt in range(3):
+        response = r.get(url, timeout=60)
+        if response.status_code == 200 and response.headers.get("content-type", "").startswith("image"):
+            break
+        time.sleep(2)
+    else:
+        return None
+
+    filename = f"ai_image_{slide_no}.jpeg"
+    with open(filename, 'wb') as f:
+        f.write(response.content)
+
+    try:
+        img = Image.open(filename)
+        img.verify()
+
+        with open(filename, 'rb') as img_file:
+            encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+
+        content_type = response.headers.get("content-type", "image/jpeg")
+        return f"data:{content_type};base64,{encoded_string}"
+    except Exception:
+        return None
+
+
+# PROMPT GENERATOR
+def agent_prompt(query):
+    """This function helps to promptify the given user query into a detailed textual outline for a presentation."""
+    prompt = f"""Generate a detailed, professional outline for a presentation based on the user's query.
+    The outline should include a suggested title for each slide, key points, and ideas for images,
+    specifying the number of slides requested in the original query.
+    Do NOT generate HTML. Just provide the textual outline.
+    User Query: {query}"""
+
+    response = model.invoke(prompt)
+    presentation_outline = response.content[-1]['text']
+
+    with open("PPT_OUTLINE.txt", 'w') as f:
+        f.write(presentation_outline)
+    return presentation_outline
+
+
+# PPT PROMPT MAKER
+def run_agent(leader_agent, user_query):
+    presentation_outline = agent_prompt(user_query)
+
+    prompt_for_leader_agent = f"""
+    You are an AI assistant tasked with creating a multi-slide presentation in HTML format.
+    Below is an outline for the presentation, generated from the user's request.
+    Your goal is to convert this outline into a series of visually appealing HTML slides.
+
+    Instructions:
+    1. Parse the provided presentation outline to understand the structure and content for each slide.
+    2. For each slide:
+       a. Generate an image using Polinations AI.
+       b. Gather information using search tool if needed.
+       c. Create HTML for the slide with image + text.
+    3. Combine all slides into one HTML document.
+    4. Ensure number of slides matches slide_no.
+    5. Each slide must have a proper image.
+
+    Presentation Outline:
+
+    User's Original Request: {user_query}
+    give output in HTML
+    User query given below: {presentation_outline}"""
+
+    prompt_for_leader_agent += presentation_outline
+
+    response = leader_agent.invoke({
+        'messages': [{'role': 'user', 'content': prompt_for_leader_agent}]
+    })
+
+    code = response['messages'][-1].content[-1]['text']
+    return code
+
+
+# AGENT CREATION
+leader_agent = create_agent(model=model, tools=[search, generate_image])
+
+tab1, tab2, tab3 = st.tabs(["GENERATE IMAGES", "FETCH NEWS", "GENERATE PPT"])
+
+if user:
+    # TAB 1
+    with tab1:
+        if st.button('GENERATE IMAGES', key='gen-image'):
+            with st.spinner("Running agent"):
+                try:
+                    generate_image(user)
+                except:
+                    url = f"https://image.pollinations.ai/prompt/{user}"
+                    time.sleep(4)
+                    st.image(url)
+
+    # TAB 2
+    with tab2:
+        if st.button("FETCH NEWS", key="fetch-news"):
+            with st.spinner("Running agent"):
+                try:
+                    prompt_for_leader_agent = "Give the news in HTML card format for topic " + user
+                    response = leader_agent.invoke({
+                        'messages': [{'role': 'user', 'content': prompt_for_leader_agent}]
+                    })
+                    code = response['messages'][-1].content[-1]['text']
+                    st.html(code, width="stretch", unsafe_allow_javascript=True)
+                except Exception as er:
+                    st.error(er)
+
+    # TAB 3
+    with tab3:
+        if st.button("Generate PPT", key="Gen-PPT"):
+            with st.spinner("Running Agent"):
+                try:
+                    code = run_agent(leader_agent, user)
+                    st.html(code, width="stretch", unsafe_allow_javascript=True)
+
+                    with open("ppt.html", "w") as f:
+                        f.write(code)
+
+                    st.download_button(
+                        label="DOWNLOAD PPT",
+                        data=code,
+                        file_name="ppt.html",
+                        mime="text/html"
+                    )
+                except Exception as err:
+                    st.error(err)
+        else:
+            st.error("SOMETHING WENT WRONG!!")
