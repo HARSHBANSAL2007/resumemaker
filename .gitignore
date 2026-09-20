@@ -1,0 +1,17 @@
+# Secrets - never commit these
+.env
+.env.*
+!.env.example
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Streamlit local secrets
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
