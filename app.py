@@ -64,7 +64,7 @@ else:
 # TOOL1 : NEWS SEARCHER / INFO GATHERER
 def search(query):
     """This function helps to give latest search query based on user given research related or content"""
-    tavily_client = TavilyClient(api_key="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")
+    tavily_client = TavilyClient(api_key)
     return tavily_client.search(query)
 
 
