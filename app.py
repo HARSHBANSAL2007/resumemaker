@@ -64,7 +64,13 @@ else:
 # TOOL1 : NEWS SEARCHER / INFO GATHERER
 def search(query):
     """This function helps to give latest search query based on user given research related or content"""
-    tavily_client = TavilyClient(api_key="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")
+    # Read the key from the sidebar (or the environment when running headless).
+    # Never hardcode it here: this file is public, and a committed key is a
+    # leaked key even after it is deleted, because it stays in git history.
+    api_key = TAVILY or os.getenv("TAVILY_API_KEY")
+    if not api_key:
+        return "No Tavily API key provided - enter one in the sidebar to enable web search."
+    tavily_client = TavilyClient(api_key=api_key)
     return tavily_client.search(query)
 
 
