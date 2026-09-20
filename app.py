@@ -64,7 +64,13 @@ else:
 # TOOL1 : NEWS SEARCHER / INFO GATHERER
 def search(query):
     """This function helps to give latest search query based on user given research related or content"""
-    tavily_client = TavilyClient(api_key)
+    # `api_key` was never defined in this scope, so every call raised
+    # NameError. The sidebar value is TAVILY; fall back to the environment
+    # when running headless, and say so plainly when neither is set.
+    api_key = TAVILY or os.getenv("TAVILY_API_KEY")
+    if not api_key:
+        return "No Tavily API key provided - enter one in the sidebar to enable web search."
+    tavily_client = TavilyClient(api_key=api_key)
     return tavily_client.search(query)
 
 
